@@ -120,6 +120,21 @@ func (o *BindAssetEvent) Format() (title string, keys []string, values []interfa
 	return
 }
 
+type ChangeOwnerEvent struct {
+	TxHash   string
+	ChainId  uint64
+	PreviousOwner, NewOwner, Contract string
+}
+
+func (o *ChangeOwnerEvent) Format() (title string, keys []string, values []interface{}, buttons []map[string]string) {
+	title = fmt.Sprintf("Suspicious lockproxy changeOwner event on chain %v", o.ChainId)
+	keys = []string{"Hash", "Contract", "ChainId", "PreviousOwner", "NewOwner"}
+	values = []interface{}{o.TxHash, o.Contract, o.ChainId, o.PreviousOwner, o.NewOwner}
+	return
+}
+
+
+
 func ParseInt(value, ty string) (v *big.Int) {
 	switch ty {
 	case "Integer":

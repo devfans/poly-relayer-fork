@@ -424,6 +424,8 @@ func (l *Listener) ScanEvents(height uint64, ch chan tools.CardEvent) (err error
 		if err != nil {
 			return err
 		}
+		changeOwnerEvents, err := p.FilterOwnershipTransferred(opt, nil, nil)
+		if err != nil { return err }
 		for setManagerProxyEvents.Next() {
 			ev := setManagerProxyEvents.Event
 			events = append(events, &msg.SetManagerProxyEvent{
@@ -455,6 +457,17 @@ func (l *Listener) ScanEvents(height uint64, ch chan tools.CardEvent) (err error
 				ToChainId:     ev.ToChainId,
 				Asset:         hex.EncodeToString(ev.TargetProxyHash),
 				InitialAmount: ev.InitialAmount,
+			})
+		}
+
+		for changeOwnerEvents.Next() {
+			ev := changeOwnerEvents.Event
+			events = append(events, &msg.ChangeOwnerEvent{
+				TxHash:        ev.Raw.TxHash.String()[2:],
+				Contract:      ev.Raw.Address.String(),
+				ChainId:       l.ChainId(),
+				PreviousOwner: ev.PreviousOwner.String(),
+				NewOwner:      ev.NewOwner.String(),
 			})
 		}
 	}
